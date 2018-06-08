@@ -1,16 +1,16 @@
 -- This file was automatically generated for the LuaDist project.
 
 package = "lua-ffi-zlib"
-version = "0.2-0"
+version = "0.3-0"
 -- LuaDist source
 source = {
-  tag = "0.2-0",
+  tag = "0.3-0",
   url = "git://github.com/LuaDist-testing/lua-ffi-zlib.git"
 }
 -- Original source
 -- source = {
 --   url = "git://github.com/hamishforbes/lua-ffi-zlib",
---   tag = "v0.2"
+--   tag = "v0.3"
 -- }
 description = {
   summary = "A Lua module using LuaJIT's FFI feature to access zlib.",
