@@ -6,7 +6,7 @@ local ffi_copy = ffi.copy
 local tonumber = tonumber
 
 local _M = {
-    _VERSION = '0.01',
+    _VERSION = '0.2.0',
 }
 
 local mt = { __index = _M }
@@ -105,6 +105,8 @@ local Z_OK         = zlib.Z_OK
 local Z_NO_FLUSH   = zlib.Z_NO_FLUSH
 local Z_STREAM_END = zlib.Z_STREAM_END
 local Z_FINISH     = zlib.Z_FINISH
+local Z_NEED_DICT  = zlib.Z_NEED_DICT
+local Z_BUF_ERROR  = zlib.Z_BUF_ERROR
 
 local function zlib_err(err)
     return ffi_str(zlib.zError(err))
@@ -181,10 +183,17 @@ local function flate(zlib_flate, zlib_flateEnd, input, output, bufsize, stream, 
             stream.avail_out = bufsize
             -- Process the stream
             err = zlib_flate(stream, mode)
-            if err < Z_OK then
-                -- Error, clean up and return
-                zlib_flateEnd(stream)
-                return false, "FLATE: "..zlib_err(err), stream
+
+            -- From the zlib docs:
+            -- Note that a Z_BUF_ERROR is not fatal--another call to deflate() or inflate() can be made with more input or output space.
+            if err == Z_BUF_ERROR then
+               err = Z_OK
+            end
+
+            if err < Z_OK or err == Z_NEED_DICT then
+               -- Error, clean up and return
+               zlib_flateEnd(stream)
+               return false, "FLATE: "..zlib_err(err), stream
             end
             -- Write the data out
             flushOutput(stream, bufsize, output, outbuf)
